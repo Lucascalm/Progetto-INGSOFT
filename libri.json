@@ -1,0 +1,15 @@
+[ {
+  "titolo" : "Paperinik",
+  "autore" : "Disney",
+  "isbn" : "1234",
+  "genere" : "Fumetto",
+  "valutazione" : 1,
+  "stato" : "LETTO"
+}, {
+  "titolo" : "Paperink 2",
+  "autore" : "Disney",
+  "isbn" : "1236",
+  "genere" : "Fumetto",
+  "valutazione" : 3,
+  "stato" : "LETTO"
+} ]
