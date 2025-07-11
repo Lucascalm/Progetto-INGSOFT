@@ -34,7 +34,7 @@ public class LibraryFacade {
             List<Libro> caricati = facade.handler.caricaDaFile(filePath);  // 🔹 USA handler
             manager.getLibri().addAll(caricati);
         } catch (Exception e) {
-            System.out.println("📂 Nessun file da caricare per " + nomeUtente);
+            System.out.println(" Nessun file da caricare per " + nomeUtente);
         }
 
         return facade;
@@ -46,7 +46,7 @@ public class LibraryFacade {
         try {
             handler.salvaSuFile(filePath, manager.getLibri());
         } catch (Exception e) {
-            System.err.println("❌ Errore durante il salvataggio: " + e.getMessage());
+            System.err.println("Errore durante il salvataggio: " + e.getMessage());
         }
     }
 
