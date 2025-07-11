@@ -1,6 +1,6 @@
 package model;
 
-public class Libro {
+public class Libro implements ILibro{
     private String titolo;
     private String autore;
     private String isbn;
@@ -8,7 +8,6 @@ public class Libro {
     private int valutazione; // da 1 a 5
     private StatoLettura stato;
 
-    // ✅ Costruttore vuoto per Jackson
     public Libro() {
     }
 
@@ -42,8 +41,9 @@ public class Libro {
 
     @Override
     public String toString() {
-        return titolo + " di " + autore + " (" + stato + ", " + valutazione + "★)";
+        return titolo + " di " + autore + " (" + stato + ", " + valutazione + "â˜…)";
     }
 }
+
 
 

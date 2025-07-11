@@ -4,18 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LibraryManager {
-    private static LibraryManager instance = null;
     private List<Libro> libri;
 
-    private LibraryManager() {
+    public LibraryManager() {
         libri = new ArrayList<>();
-    }
-
-    public static LibraryManager getInstance() {
-        if (instance == null) {
-            instance = new LibraryManager();
-        }
-        return instance;
     }
 
     public void aggiungiLibro(Libro l) {
@@ -30,3 +22,4 @@ public class LibraryManager {
         return libri;
     }
 }
+
