@@ -1,6 +1,8 @@
 package controller;
 
 import model.*;
+import persistence.ProxyJSONHandler;
+import persistence.Salvataggio;
 
 import javax.swing.JOptionPane;
 import java.util.List;
@@ -9,22 +11,55 @@ import java.util.stream.Collectors;
 public class LibraryFacade {
 
     private LibraryManager manager;
+    private String nomeUtente;
+    private Salvataggio handler;
 
-    public LibraryFacade() {
-        manager = LibraryManager.getInstance();
+    public LibraryFacade(LibraryManager manager, String nomeUtente) {
+        this.manager = manager;
+        this.nomeUtente = nomeUtente;
+        this.handler = new ProxyJSONHandler();
     }
 
-    // ✅ AGGIUNGI LIBRO
+    public static LibraryFacade creaConUtente() {
+        String nomeUtente = JOptionPane.showInputDialog(null, "Inserisci il tuo nome utente:", "Login", JOptionPane.QUESTION_MESSAGE);
+        if (nomeUtente == null || nomeUtente.isBlank()) {
+            nomeUtente = "default";
+        }
+
+        LibraryManager manager = new LibraryManager();
+        LibraryFacade facade = new LibraryFacade(manager, nomeUtente);
+
+        String filePath = "libri_" + nomeUtente + ".json";
+        try {
+            List<Libro> caricati = facade.handler.caricaDaFile(filePath);  // 🔹 USA handler
+            manager.getLibri().addAll(caricati);
+        } catch (Exception e) {
+            System.out.println("📂 Nessun file da caricare per " + nomeUtente);
+        }
+
+        return facade;
+    }
+
+
+    public void salvaSuFile() {
+        String filePath = "libri_" + nomeUtente + ".json";
+        try {
+            handler.salvaSuFile(filePath, manager.getLibri());
+        } catch (Exception e) {
+            System.err.println("❌ Errore durante il salvataggio: " + e.getMessage());
+        }
+    }
+
     public void aggiungiLibro(String titolo, String autore, String isbn, String genere, int valutazione, StatoLettura stato) {
-        // Verifica se esiste già un libro con lo stesso ISBN
         boolean esiste = manager.getLibri().stream()
-            .anyMatch(l -> l.getIsbn().equalsIgnoreCase(isbn));
-        
+                .anyMatch(l -> l.getIsbn().equalsIgnoreCase(isbn));
+
         if (!esiste) {
-            Libro libro = LibroFactory.creaLibro(titolo, autore, isbn, genere, valutazione, stato);
-            manager.aggiungiLibro(libro);
+            LibroCreator creator = new ConcreteLibroCreator();
+            ILibro libro = creator.crea(titolo, autore, isbn, genere, valutazione, stato);
+            manager.aggiungiLibro((Libro) libro);  // downcasting da ILibro a Libro
         } else {
-        	JOptionPane.showMessageDialog(null,
+            JOptionPane.showMessageDialog(null,
                     "Un libro con lo stesso ISBN è già presente!",
                     "Errore di aggiunta",
                     JOptionPane.ERROR_MESSAGE);
@@ -32,66 +67,59 @@ public class LibraryFacade {
     }
 
 
-    // ✅ RIMUOVI LIBRO DIRETTO
     public void rimuoviLibro(Libro libro) {
         manager.rimuoviLibro(libro);
     }
 
-    // ✅ RIMUOVI PER TITOLO
     public boolean rimuoviLibroPerTitolo(String titolo) {
         return manager.getLibri().removeIf(l -> l.getTitolo().equalsIgnoreCase(titolo));
     }
 
-    // ✅ OTTIENI TUTTI I LIBRI
     public List<Libro> getLibri() {
         return manager.getLibri();
     }
 
-    // ✅ MODIFICA LIBRO A INDICE
     public void modificaLibro(int index, Libro nuovoLibro) {
         if (index >= 0 && index < manager.getLibri().size()) {
             manager.getLibri().set(index, nuovoLibro);
         }
     }
 
-    // ✅ RICERCA PER TITOLO
     public List<Libro> cercaPerTitolo(String titolo) {
         return manager.getLibri().stream()
                 .filter(l -> l.getTitolo().toLowerCase().contains(titolo.toLowerCase()))
                 .collect(Collectors.toList());
     }
 
-    // ✅ RICERCA PER AUTORE
     public List<Libro> cercaPerAutore(String autore) {
         return manager.getLibri().stream()
                 .filter(l -> l.getAutore().toLowerCase().contains(autore.toLowerCase()))
                 .collect(Collectors.toList());
     }
 
-    // ✅ FILTRO PER STATO DI LETTURA
     public List<Libro> filtraPerStato(StatoLettura stato) {
         return manager.getLibri().stream()
                 .filter(l -> l.getStato() == stato)
                 .collect(Collectors.toList());
     }
 
-    // ✅ FILTRO PER GENERE
     public List<Libro> filtraPerGenere(String genere) {
         return manager.getLibri().stream()
                 .filter(l -> l.getGenere().equalsIgnoreCase(genere))
                 .collect(Collectors.toList());
     }
 
-    // ✅ SALVATAGGIO SU JSON
     public void salvaJSON(String path) throws Exception {
-        JSONHandler.salvaSuFile(path, manager.getLibri());
+        handler.salvaSuFile(path, manager.getLibri());
     }
 
-    // ✅ CARICAMENTO DA JSON
     public void caricaJSON(String path) throws Exception {
-        List<Libro> caricati = JSONHandler.caricaDaFile(path);
+        List<Libro> caricati = handler.caricaDaFile(path);
         manager.getLibri().clear();
         manager.getLibri().addAll(caricati);
     }
-}
 
+    public String getNomeUtente() {
+        return nomeUtente;
+    }
+}
