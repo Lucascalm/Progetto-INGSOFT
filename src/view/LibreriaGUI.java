@@ -97,7 +97,7 @@ public class LibreriaGUI extends JFrame {
 
                     if (exists) {
                         isbnField.setBackground(Color.PINK);
-                        isbnWarningLabel.setText("âš  ISBN giÃ  presente!");
+                        isbnWarningLabel.setText("ISBN già presente!");
                     } else {
                         isbnField.setBackground(Color.WHITE);
                         isbnWarningLabel.setText("");
@@ -105,61 +105,142 @@ public class LibreriaGUI extends JFrame {
                 }
             });
 
-            JPanel panel = new JPanel(new GridLayout(0, 1));
-            JTextField titoloField = new JTextField();
-            JTextField autoreField = new JTextField();
-            JTextField genereField = new JTextField();
-            JTextField valutazioneField = new JTextField();
-            JComboBox<String> statoBox = new JComboBox<>(new String[]{"LETTO", "DA_LEGGERE", "IN_LETTURA"});
+            while (true) {
+                JPanel panel = new JPanel(new GridLayout(0, 1));
+                JTextField titoloField = new JTextField();
+                JTextField autoreField = new JTextField();
+                JTextField genereField = new JTextField();
+                JTextField valutazioneField = new JTextField();
+                JComboBox<String> statoBox = new JComboBox<>(new String[]{"LETTO", "DA_LEGGERE", "IN_LETTURA"});
 
-            panel.add(new JLabel("Titolo:"));
-            panel.add(titoloField);
-            panel.add(new JLabel("Autore:"));
-            panel.add(autoreField);
-            panel.add(new JLabel("ISBN:"));
-            panel.add(isbnField);
-            panel.add(isbnWarningLabel);
-            panel.add(new JLabel("Genere:"));
-            panel.add(genereField);
-            panel.add(new JLabel("Valutazione (1-5):"));
-            panel.add(valutazioneField);
-            panel.add(new JLabel("Stato:"));
-            panel.add(statoBox);
+                panel.add(new JLabel("Titolo:"));
+                panel.add(titoloField);
+                panel.add(new JLabel("Autore:"));
+                panel.add(autoreField);
+                panel.add(new JLabel("ISBN:"));
+                panel.add(isbnField);
+                panel.add(isbnWarningLabel);
+                panel.add(new JLabel("Genere:"));
+                panel.add(genereField);
+                panel.add(new JLabel("Valutazione (0-5):"));
+                panel.add(valutazioneField);
+                panel.add(new JLabel("Stato:"));
+                panel.add(statoBox);
 
-            int result = JOptionPane.showConfirmDialog(null, panel, "Aggiungi Libro", JOptionPane.OK_CANCEL_OPTION);
-            if (result == JOptionPane.OK_OPTION) {
+                int result = JOptionPane.showConfirmDialog(null, panel, "Aggiungi Libro", JOptionPane.OK_CANCEL_OPTION);
+                if (result != JOptionPane.OK_OPTION) return;
+
+                // Raccogli input
+                String titolo = titoloField.getText().trim();
+                String autore = autoreField.getText().trim();
+                String isbn = isbnField.getText().trim();
+                String genere = genereField.getText().trim();
+                String valStr = valutazioneField.getText().trim();
+
+                // 1. Verifica che tutti i campi siano compilati
+                if (titolo.isEmpty() || autore.isEmpty() || isbn.isEmpty() || genere.isEmpty() || valStr.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "Compila tutti i campi prima di continuare.", "Errore", JOptionPane.ERROR_MESSAGE);
+                    continue;
+                }
+
+                // 2. Verifica valutazione
+                int valutazione;
                 try {
-                    String titolo = titoloField.getText();
-                    String autore = autoreField.getText();
-                    String isbn = isbnField.getText();
-                    String genere = genereField.getText();
-                    int valutazione = Integer.parseInt(valutazioneField.getText());
+                    valutazione = Integer.parseInt(valStr);
+                    if (valutazione < 0 || valutazione > 5) {
+                        JOptionPane.showMessageDialog(null, "La valutazione deve essere tra 0 e 5.", "Errore", JOptionPane.ERROR_MESSAGE);
+                        continue;
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, "Inserisci un numero valido nella valutazione.", "Errore", JOptionPane.ERROR_MESSAGE);
+                    continue;
+                }
+
+                // 3. Verifica che il genere sia una stringa alfabetica
+                if (!genere.matches("[a-zA-ZÀ-ÿ\\s]+")) {
+                    JOptionPane.showMessageDialog(null, "Il genere deve contenere solo lettere.", "Errore", JOptionPane.ERROR_MESSAGE);
+                    continue;
+                }
+
+                // 4. Controllo ISBN duplicato
+                boolean isbnDuplicato = facade.getLibri().stream()
+                        .anyMatch(l -> l.getIsbn().equalsIgnoreCase(isbn));
+                if (isbnDuplicato) {
+                    JOptionPane.showMessageDialog(null, "ISBN già presente! Inserisci un codice univoco.", "Errore", JOptionPane.ERROR_MESSAGE);
+                    continue;
+                }
+
+                // Tutto OK → aggiungi il libro
+                try {
                     StatoLettura stato = StatoLettura.valueOf((String) statoBox.getSelectedItem());
                     facade.aggiungiLibro(titolo, autore, isbn, genere, valutazione, stato);
                     aggiornaTabella();
+                    break;
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(null, "Errore nei dati inseriti");
+                    JOptionPane.showMessageDialog(null, "Errore imprevisto durante l'inserimento.", "Errore", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
 
+
+
+
         btnModifica.addActionListener(e -> {
             int selected = table.getSelectedRow();
-            if (selected >= 0) {
-                String titolo = JOptionPane.showInputDialog("Titolo:", tableModel.getValueAt(selected, 0));
-                String autore = JOptionPane.showInputDialog("Autore:", tableModel.getValueAt(selected, 1));
-                String isbn = JOptionPane.showInputDialog("ISBN:", tableModel.getValueAt(selected, 2));
-                String genere = JOptionPane.showInputDialog("Genere:", tableModel.getValueAt(selected, 3));
-                int valutazione = Integer.parseInt(JOptionPane.showInputDialog("Valutazione (1-5):", tableModel.getValueAt(selected, 4).toString()));
-                String[] stati = {"LETTO", "DA_LEGGERE", "IN_LETTURA"};
-                String statoStr = (String) JOptionPane.showInputDialog(null, "Stato di lettura:", "Stato", JOptionPane.QUESTION_MESSAGE, null, stati, tableModel.getValueAt(selected, 5));
-                StatoLettura stato = StatoLettura.valueOf(statoStr);
-
-                Libro nuovoLibro = new Libro(titolo, autore, isbn, genere, valutazione, stato);
-                facade.modificaLibro(selected, nuovoLibro);
-                aggiornaTabella();
+            if (selected < 0) {
+                JOptionPane.showMessageDialog(null, "Nessun libro selezionato");
+                return;
             }
+
+            String oldIsbn = (String) tableModel.getValueAt(selected, 2);
+
+            String titolo = JOptionPane.showInputDialog("Titolo:", tableModel.getValueAt(selected, 0));
+            if (titolo == null) return;
+
+            String autore = JOptionPane.showInputDialog("Autore:", tableModel.getValueAt(selected, 1));
+            if (autore == null) return;
+
+            String isbn = JOptionPane.showInputDialog("ISBN:", oldIsbn);
+            if (isbn == null) return;
+
+            String genere = JOptionPane.showInputDialog("Genere:", tableModel.getValueAt(selected, 3));
+            if (genere == null || genere.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Genere non valido");
+                return;
+            }
+
+            String valStr = JOptionPane.showInputDialog("Valutazione (1-5):", tableModel.getValueAt(selected, 4).toString());
+            if (valStr == null) return;
+
+            int valutazione;
+            try {
+                valutazione = Integer.parseInt(valStr);
+                if (valutazione < 0 || valutazione > 5)
+                    throw new NumberFormatException();
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(null, "Valutazione deve essere un numero tra 0 e 5");
+                return;
+            }
+
+            String[] stati = {"LETTO", "DA_LEGGERE", "IN_LETTURA"};
+            String statoStr = (String) JOptionPane.showInputDialog(null, "Stato di lettura:", "Stato", JOptionPane.QUESTION_MESSAGE, null, stati, tableModel.getValueAt(selected, 5));
+            if (statoStr == null) return;
+
+            // Verifica ISBN duplicato
+            boolean isbnEsiste = facade.getLibri().stream()
+                .anyMatch(l -> l.getIsbn().equalsIgnoreCase(isbn) && !l.getIsbn().equalsIgnoreCase(oldIsbn));
+
+            if (isbnEsiste) {
+                JOptionPane.showMessageDialog(null, "ISBN già presente in un altro libro");
+                return;
+            }
+
+            StatoLettura stato = StatoLettura.valueOf(statoStr);
+            Libro nuovoLibro = new Libro(titolo, autore, isbn, genere, valutazione, stato);
+            facade.modificaLibro(selected, nuovoLibro);
+            aggiornaTabella();
         });
+
 
         btnRimuovi.addActionListener(e -> {
             int selected = table.getSelectedRow();
