@@ -9,6 +9,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.List;
 
 public class LibreriaGUI extends JFrame {
@@ -22,12 +24,20 @@ public class LibreriaGUI extends JFrame {
     private JLabel isbnWarningLabel;
 
     public LibreriaGUI() {
-        facade = new LibraryFacade();
+        //Login all'avvio
+        facade = LibraryFacade.creaConUtente();
 
-        setTitle("Gestore Libreria Personale");
+        setTitle("Gestore Libreria Personale - Utente: " + facade.getNomeUtente());
         setSize(900, 550);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+
+        //Salva su chiusura finestra
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                facade.salvaSuFile();
+            }
+        });
 
         tableModel = new DefaultTableModel(new String[]{"Titolo", "Autore", "ISBN", "Genere", "Valutazione", "Stato"}, 0);
         table = new JTable(tableModel);
@@ -37,7 +47,6 @@ public class LibreriaGUI extends JFrame {
         JButton btnModifica = new JButton("Modifica Selezionato");
         JButton btnRimuovi = new JButton("Rimuovi Selezionato");
         JButton btnSalva = new JButton("Salva su JSON");
-        JButton btnCarica = new JButton("Carica da JSON");
         JButton btnCercaTitolo = new JButton("Cerca per Titolo");
         JButton btnCercaAutore = new JButton("Cerca per Autore");
         JButton btnFiltraStato = new JButton("Filtra per Stato");
@@ -69,7 +78,6 @@ public class LibreriaGUI extends JFrame {
         panelButtons.add(btnModifica);
         panelButtons.add(btnRimuovi);
         panelButtons.add(btnSalva);
-        panelButtons.add(btnCarica);
 
         add(panelTop, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
@@ -89,7 +97,7 @@ public class LibreriaGUI extends JFrame {
 
                     if (exists) {
                         isbnField.setBackground(Color.PINK);
-                        isbnWarningLabel.setText("⚠ ISBN già presente!");
+                        isbnWarningLabel.setText("âš  ISBN giÃ  presente!");
                     } else {
                         isbnField.setBackground(Color.WHITE);
                         isbnWarningLabel.setText("");
@@ -135,7 +143,6 @@ public class LibreriaGUI extends JFrame {
             }
         });
 
-        // Resto del codice invariato...
         btnModifica.addActionListener(e -> {
             int selected = table.getSelectedRow();
             if (selected >= 0) {
@@ -160,28 +167,14 @@ public class LibreriaGUI extends JFrame {
                 String titolo = (String) tableModel.getValueAt(selected, 0);
                 facade.rimuoviLibroPerTitolo(titolo);
                 aggiornaTabella();
+            } else {
+                JOptionPane.showMessageDialog(null, "Seleziona un libro da rimuovere.", "Errore", JOptionPane.ERROR_MESSAGE);
             }
         });
 
         btnSalva.addActionListener(e -> {
-            try {
-                facade.salvaJSON("libri.json");
-                JOptionPane.showMessageDialog(null, "Salvataggio completato");
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(null, "Errore durante il salvataggio");
-            }
-        });
-
-        btnCarica.addActionListener(e -> {
-            try {
-                facade.caricaJSON("libri.json");
-                aggiornaTabella();
-                JOptionPane.showMessageDialog(null, "Caricamento completato");
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(null, "Errore durante il caricamento");
-            }
+            facade.salvaSuFile();
+            JOptionPane.showMessageDialog(null, "Salvataggio completato");
         });
 
         btnCercaTitolo.addActionListener(e -> {
