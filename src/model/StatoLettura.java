@@ -2,6 +2,6 @@ package model;
 
 public enum StatoLettura {
     LETTO,
-    DA_LEGGERE,
+    NON_LETTO,
     IN_LETTURA
 }

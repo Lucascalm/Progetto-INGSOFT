@@ -43,6 +43,22 @@ public class Libro implements ILibro{
     public String toString() {
         return titolo + " di " + autore + " (" + stato + ", " + valutazione + "â˜…)";
     }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Libro libro = (Libro) o;
+
+        return isbn != null ? isbn.equals(libro.isbn) : libro.isbn == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return isbn != null ? isbn.hashCode() : 0;
+    }
+    
 }
 
 
