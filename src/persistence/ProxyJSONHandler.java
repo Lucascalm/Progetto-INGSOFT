@@ -12,15 +12,17 @@ public class ProxyJSONHandler implements Salvataggio {
 
     @Override
     public void salvaSuFile(String path, List<Libro> libri) throws Exception {
-        System.out.println("🔐 [Proxy] Salvataggio file: " + path);
+        System.out.println("[Proxy] Salvataggio file: " + path);
         realHandler.salvaSuFile(path, libri);
     }
 
     @Override
     public List<Libro> caricaDaFile(String path) throws Exception {
-        System.out.println("📂 [Proxy] Caricamento file: " + path);
+        System.out.println("[Proxy] Caricamento file: " + path);
         return realHandler.caricaDaFile(path);
     }
 }
+
+
 
 

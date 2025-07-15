@@ -254,9 +254,14 @@ public class LibreriaGUI extends JFrame {
         });
 
         btnSalva.addActionListener(e -> {
-            facade.salvaSuFile();
-            JOptionPane.showMessageDialog(null, "Salvataggio completato");
+            try {
+                facade.salvaSuFile();
+                JOptionPane.showMessageDialog(null, "Salvataggio completato");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, "Errore durante il salvataggio dei dati.", "Errore", JOptionPane.ERROR_MESSAGE);
+            }
         });
+
 
         btnCercaTitolo.addActionListener(e -> {
             String testo = searchField.getText().trim();

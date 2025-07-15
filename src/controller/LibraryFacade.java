@@ -21,9 +21,16 @@ public class LibraryFacade {
     }
 
     public static LibraryFacade creaConUtente() {
-        String nomeUtente = JOptionPane.showInputDialog(null, "Inserisci il tuo nome utente:", "Login", JOptionPane.QUESTION_MESSAGE);
-        if (nomeUtente == null || nomeUtente.isBlank()) {
-            nomeUtente = "default";
+        String nomeUtente = "";
+
+        while (nomeUtente == null || nomeUtente.isBlank()) {
+            nomeUtente = JOptionPane.showInputDialog(null, "Inserisci il tuo nome utente:", "Login", JOptionPane.QUESTION_MESSAGE);
+            if (nomeUtente == null) {
+                System.exit(0);  // chiude il programma se clicca "Annulla"
+            }
+            if (nomeUtente.isBlank()) {
+                JOptionPane.showMessageDialog(null, "⚠ Devi inserire un nome utente valido.", "Errore", JOptionPane.ERROR_MESSAGE);
+            }
         }
 
         LibraryManager manager = new LibraryManager();
@@ -31,10 +38,10 @@ public class LibraryFacade {
 
         String filePath = "libri_" + nomeUtente + ".json";
         try {
-            List<Libro> caricati = facade.handler.caricaDaFile(filePath);  // 🔹 USA handler
+            List<Libro> caricati = facade.handler.caricaDaFile(filePath);
             manager.getLibri().addAll(caricati);
         } catch (Exception e) {
-            System.out.println(" Nessun file da caricare per " + nomeUtente);
+            System.out.println("Nessun file da caricare per " + nomeUtente);
         }
 
         return facade;
@@ -60,7 +67,7 @@ public class LibraryFacade {
             manager.aggiungiLibro((Libro) libro);  // downcasting da ILibro a Libro
         } else {
             JOptionPane.showMessageDialog(null,
-                    "Un libro con lo stesso ISBN è già presente!",
+                    "Un libro con lo stesso ISBN Ã¨ giÃ  presente!",
                     "Errore di aggiunta",
                     JOptionPane.ERROR_MESSAGE);
         }
@@ -123,3 +130,4 @@ public class LibraryFacade {
         return nomeUtente;
     }
 }
+
