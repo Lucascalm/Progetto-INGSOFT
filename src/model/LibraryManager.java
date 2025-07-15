@@ -2,7 +2,6 @@ package model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Collections;
 
 public class LibraryManager {
     private List<Libro> libri;
@@ -24,7 +23,7 @@ public class LibraryManager {
 
 
     public List<Libro> getLibri() {
-    	return Collections.unmodifiableList(libri);
+    	return libri;
     }
 }
 

@@ -39,18 +39,19 @@ class LibraryManagerTest {
 
         assertFalse(success, "La rimozione di un libro non presente dovrebbe fallire");
     }
-
+    
     @Test
-    void testGetLibriImmutabile() {
+    void testGetLibriModificabile() {
         Libro libro = new Libro("Clean Code", "Robert C. Martin", "321", "Informatica", 5, StatoLettura.NON_LETTO);
         manager.aggiungiLibro(libro);
 
         List<Libro> libri = manager.getLibri();
 
-        assertThrows(UnsupportedOperationException.class, () -> {
-            libri.clear(); // Deve lanciare eccezione
-        }, "La lista restituita deve essere immutabile");
+        libri.remove(libro);
+        
+        assertTrue(manager.getLibri().isEmpty(), "La lista dovrebbe essere modificabile");
     }
+
 
     @Test
     void testAggiuntaMultiplaLibriDiversi() {

@@ -118,6 +118,7 @@ public class LibraryFacade {
 
     public void salvaJSON(String path) throws Exception {
         handler.salvaSuFile(path, manager.getLibri());
+        System.out.println("Libri da salvare"+manager.getLibri().size());
     }
 
     public void caricaJSON(String path) throws Exception {

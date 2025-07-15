@@ -54,7 +54,7 @@ public class LibreriaGUI extends JFrame {
 
         searchField = new JTextField(10);
         searchAutore = new JTextField(10);
-        filtroStato = new JComboBox<>(new String[]{"TUTTI", "LETTO", "DA_LEGGERE", "IN_LETTURA"});
+        filtroStato = new JComboBox<>(new String[]{"TUTTI", "LETTO", "DA_LEGGERE", "NON_LETTO"});
         filtroGenere = new JComboBox<>(new String[]{"TUTTI", "Giallo", "Distopia", "Romanzo", "Fantascienza", "Altro"});
         isbnWarningLabel = new JLabel();
         isbnWarningLabel.setForeground(Color.RED);
@@ -111,7 +111,7 @@ public class LibreriaGUI extends JFrame {
                 JTextField autoreField = new JTextField();
                 JTextField genereField = new JTextField();
                 JTextField valutazioneField = new JTextField();
-                JComboBox<String> statoBox = new JComboBox<>(new String[]{"LETTO", "DA_LEGGERE", "IN_LETTURA"});
+                JComboBox<String> statoBox = new JComboBox<>(new String[]{"LETTO", "NON_LETTO", "IN_LETTURA"});
 
                 panel.add(new JLabel("Titolo:"));
                 panel.add(titoloField);
@@ -175,6 +175,7 @@ public class LibreriaGUI extends JFrame {
                     StatoLettura stato = StatoLettura.valueOf((String) statoBox.getSelectedItem());
                     facade.aggiungiLibro(titolo, autore, isbn, genere, valutazione, stato);
                     aggiornaTabella();
+                    System.out.println(facade.getLibri());
                     break;
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(null, "Errore imprevisto durante l'inserimento.", "Errore", JOptionPane.ERROR_MESSAGE);
@@ -222,7 +223,7 @@ public class LibreriaGUI extends JFrame {
                 return;
             }
 
-            String[] stati = {"LETTO", "DA_LEGGERE", "IN_LETTURA"};
+            String[] stati = {"LETTO", "NON_LETTO", "IN_LETTURA"};
             String statoStr = (String) JOptionPane.showInputDialog(null, "Stato di lettura:", "Stato", JOptionPane.QUESTION_MESSAGE, null, stati, tableModel.getValueAt(selected, 5));
             if (statoStr == null) return;
 
