@@ -67,7 +67,7 @@ public class LibraryFacade {
             manager.aggiungiLibro((Libro) libro);  // downcasting da ILibro a Libro
         } else {
             JOptionPane.showMessageDialog(null,
-                    "Un libro con lo stesso ISBN Ã¨ giÃ  presente!",
+                    "Un libro con lo stesso ISBN gia  presente!",
                     "Errore di aggiunta",
                     JOptionPane.ERROR_MESSAGE);
         }
