@@ -54,7 +54,7 @@ public class LibreriaGUI extends JFrame {
 
         searchField = new JTextField(10);
         searchAutore = new JTextField(10);
-        filtroStato = new JComboBox<>(new String[]{"TUTTI", "LETTO", "DA_LEGGERE", "NON_LETTO"});
+        filtroStato = new JComboBox<>(new String[]{"TUTTI", "LETTO", "NON_LETTO", "IN_LETTURA"});
         filtroGenere = new JComboBox<>(new String[]{"TUTTI", "Giallo", "Distopia", "Romanzo", "Fantascienza", "Altro"});
         isbnWarningLabel = new JLabel();
         isbnWarningLabel.setForeground(Color.RED);
